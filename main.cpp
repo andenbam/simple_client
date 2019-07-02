@@ -6,6 +6,7 @@ Main::Main(QWidget *parent) :
     ui(new Ui::Main)
 {
     ui->setupUi(this);
+    //залупа
 }
 
 Main::~Main()
