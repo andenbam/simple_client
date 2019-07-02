@@ -3,5 +3,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    return a.exec();
+
+    printf("hello\n");
+    return 0;//a.exec();
 }
