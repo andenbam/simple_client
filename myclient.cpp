@@ -79,10 +79,24 @@ void MyClient::slotError(QAbstractSocket::SocketError err)
 
 void MyClient::slotSendToServer()
 {
+    QByteArray block;
 
+    QDataStream outputStream(&block, QIODevice::WriteOnly);
+    outputStream.setVersion(QDataStream::Qt_5_9);
+
+    outputStream << quint16(0)
+                 << QTime::currentTime()
+                 << textInput->text();
+
+    outputStream.device()->seek(0);
+    outputStream << quint16(
+                        block.size() - sizeof(quint16));
+
+    socket->write(block);
+    textInput->setText("");
 }
 
 void MyClient::slotConnected()
 {
-
+    textInfo->append(".Connection established.");
 }
