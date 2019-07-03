@@ -18,13 +18,14 @@ private:
     unsigned short nextBlockSize;
 
 public:
-    MyClient(const QString&, quint16, QWidget* pwgt = nullptr);
+    MyClient();
 
 private slots:
     void slotReadyRead();
     void slotError(QAbstractSocket::SocketError);
     void slotSendToServer();
     void slotConnected();
+    void slotSetConnection();
 };
 
 #endif // MYCLIENT_H

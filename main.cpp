@@ -5,8 +5,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    MyClient client("localhost",2323);
+    MyClient client;
     client.show();
-
     return app.exec();
 }
