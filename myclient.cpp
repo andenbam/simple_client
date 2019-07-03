@@ -28,7 +28,7 @@ MyClient::MyClient(const QString &host,
     connect(textInput, SIGNAL(returnPressed()), this, SLOT(slotSendToServer()));
 
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("<HI>Client</HI"));
+    layout->addWidget(new QLabel("<H1>Client</H1"));
     layout->addWidget(textInfo);
     layout->addWidget(textInput);
     layout->addWidget(pushCommand);
