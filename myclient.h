@@ -2,19 +2,19 @@
 #define MYCLIENT_H
 #pragma once
 
+#include <QTcpSocket>
 #include <QWidget>
 
 class QTextEdit;
 class QLineEdit;
-class QTcpSocket;
 
 class MyClient : public QWidget
 {
 Q_OBJECT
 private:
     QTcpSocket* socket;
-    QTextEdit* info;
-    QLineEdit* input;
+    QTextEdit* textInfo;
+    QLineEdit* textInput;
     qint16 nextBlockSize;
 
 public:
@@ -22,7 +22,7 @@ public:
 
 private slots:
     void slotReadyRead();
-    void slotError();
+    void slotError(QAbstractSocket::SocketError);
     void slotSendToServer();
     void slotConnected();
 };
