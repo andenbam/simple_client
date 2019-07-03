@@ -1,5 +1,10 @@
 #include "myclient.h"
 
+#include <QLineEdit>
+#include <QPushButton>
+#include <QTcpSocket>
+#include <QTextEdit>
+
 MyClient::MyClient(const QString &host,
                    quint16 port,
                    QWidget *pwgt) : QWidget (pwgt), nextBlockSize(0)
@@ -13,4 +18,8 @@ MyClient::MyClient(const QString &host,
 
     info = new QTextEdit();
     input = new QLineEdit();
+
+    info->setReadOnly(true);
+
+    QPushButton* pushCommand = new QPushButton("&Send");
 }

@@ -1,11 +1,12 @@
 #ifndef MYCLIENT_H
 #define MYCLIENT_H
+#pragma once
 
 #include <QWidget>
-#include <QTcpSocket>
-#include <QTextEdit>
-#include <qlineedit.h>
 
+class QTextEdit;
+class QLineEdit;
+class QTcpSocket;
 
 class MyClient : public QWidget
 {
