@@ -4,8 +4,8 @@ CONFIG += app_bundle
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
-        clientwindow.cpp \
-        main.cpp
+        main.cpp \
+        myclient.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -16,4 +16,4 @@ FORMS += \
     clientwindow.ui
 
 HEADERS += \
-    clientwindow.h
+    myclient.h
