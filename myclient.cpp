@@ -103,5 +103,5 @@ void MyClient::slotConnected()
 
 void MyClient::slotSetConnection()
 {
-    socket->connectToHost("localhost",2323);
+    socket->connectToHost("localhost", 5005);
 }
