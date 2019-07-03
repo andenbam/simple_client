@@ -1,9 +1,11 @@
-#include <QCoreApplication>
+#include <QApplication>
+#include <QStyleFactory>
+#include <clientwindow.h>
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
-
-    printf("hello\n");
-    return 0;//a.exec();
+    QApplication app(argc, argv);
+    ClientWindow window;
+    window.show();
+    return app.exec();
 }
