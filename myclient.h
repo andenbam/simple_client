@@ -3,21 +3,21 @@
 
 #include <QWidget>
 #include <QTcpSocket>
+#include <QTextEdit>
+#include <qlineedit.h>
 
-class QTextEdit;
-class QLineEdit;
 
 class MyClient : public QWidget
 {
 Q_OBJECT
 private:
     QTcpSocket* socket;
-    QTextEdit* textEdit;
-    QLineEdit* lineEdit;
+    QTextEdit* info;
+    QLineEdit* input;
     qint16 nextBlockSize;
 
 public:
-    MyClient(const QString& strHost, int nPort, QWidget* pwgt = nullptr);
+    MyClient(const QString& strHost, quint16 port, QWidget* pwgt = nullptr);
 
 private slots:
     void slotReadyRead();
