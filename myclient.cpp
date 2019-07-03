@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QTcpSocket>
 #include <QTextEdit>
+#include <QTime>
 #include <QVBoxLayout>
 
 MyClient::MyClient(const QString &host,
@@ -13,36 +14,67 @@ MyClient::MyClient(const QString &host,
 {
     socket = new QTcpSocket(this);
     socket->connectToHost(host, port);
-    connect(socket, SIGNAL(connected()), SLOT(slotConnected()));
-    connect(socket, SIGNAL(readyRead()), SLOT(slotReadyRead()));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
-            this,  SLOT(slotError(QAbstractSocket::SocketError)));
 
     textInfo = new QTextEdit();
+    textInfo->setReadOnly(true);
     textInput = new QLineEdit();
 
-    textInfo->setReadOnly(true);
+    QPushButton* pushButton = new QPushButton("&Send");
 
-    QPushButton* pushCommand = new QPushButton("&Send");
-    connect(pushCommand, SIGNAL(returnPressed()), SLOT(slotSendToServer()));
-    connect(textInput, SIGNAL(returnPressed()), this, SLOT(slotSendToServer()));
+    connect(pushButton, &QPushButton::pressed, this, &MyClient::slotSendToServer);
+    connect(socket, &QTcpSocket::connected, this, &MyClient::slotConnected);
+    connect(socket, &QTcpSocket::readyRead, this, &MyClient::slotReadyRead);
+
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
+                    SLOT(slotError(QAbstractSocket::SocketError)));
+
 
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("<H1>Client</H1"));
     layout->addWidget(textInfo);
     layout->addWidget(textInput);
-    layout->addWidget(pushCommand);
+    layout->addWidget(pushButton);
     setLayout(layout);
 }
 
 void MyClient::slotReadyRead()
 {
+    QDataStream dataStream(socket);
+    dataStream.setVersion(QDataStream::Qt_5_9);
 
+    while(true){
+
+        if (!nextBlockSize){
+
+            if (socket->bytesAvailable() < sizeof(nextBlockSize))
+                return;
+
+            dataStream >> nextBlockSize;
+        }
+
+        if (socket->bytesAvailable() < nextBlockSize)
+            return;
+
+        QTime time;
+        QString str;
+        dataStream >> time >> str;
+
+        textInfo->append(time.toString() + " " + str);
+        nextBlockSize = 0;
+    }
 }
 
-void MyClient::slotError(QAbstractSocket::SocketError)
+void MyClient::slotError(QAbstractSocket::SocketError err)
 {
+    QString errorMessage = "Error: " +
+            (err == QTcpSocket::HostNotFoundError ?
+                 "Host was not found" :
+             err == QTcpSocket::RemoteHostClosedError ?
+                  "Remote Host is closed" :
+             err == QTcpSocket::ConnectionRefusedError ?
+                   "Connection was refused" :
+             QString(socket->errorString()));
 
+    textInfo->append(errorMessage);
 }
 
 void MyClient::slotSendToServer()

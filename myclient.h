@@ -15,10 +15,10 @@ private:
     QTcpSocket* socket;
     QTextEdit* textInfo;
     QLineEdit* textInput;
-    qint16 nextBlockSize;
+    unsigned short nextBlockSize;
 
 public:
-    MyClient(const QString& strHost, quint16 port, QWidget* pwgt = nullptr);
+    MyClient(const QString&, quint16, QWidget* pwgt = nullptr);
 
 private slots:
     void slotReadyRead();
