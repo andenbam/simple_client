@@ -11,23 +11,25 @@
 MyClient::MyClient() : QWidget(), nextBlockSize(0)
 {
 
+    socket = new QTcpSocket(this);
+
     textInfo = new QTextEdit();
     textInfo->setReadOnly(true);
     textInput = new QLineEdit();
 
-    QPushButton* sendButton = new QPushButton("&Send");
-    QPushButton* connectButton = new QPushButton("&Connect");
+    sendButton = new QPushButton("&Send");
+    connectButton = new QPushButton("&Connect");
 
     connect(connectButton, &QPushButton::pressed, this, &MyClient::slotSetConnection);
     connect(sendButton, &QPushButton::pressed, this, &MyClient::slotSendToServer);
     connect(socket, &QTcpSocket::connected, this, &MyClient::slotConnected);
     connect(socket, &QTcpSocket::readyRead, this, &MyClient::slotReadyRead);
-
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
                     SLOT(slotError(QAbstractSocket::SocketError)));
 
 
     QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(connectButton);
     layout->addWidget(textInfo);
     layout->addWidget(textInput);
     layout->addWidget(sendButton);
@@ -101,9 +103,5 @@ void MyClient::slotConnected()
 
 void MyClient::slotSetConnection()
 {
-    const QString host = "localhost";
-    quint16 port = 2323;
-
-    socket = new QTcpSocket(this);
-    socket->connectToHost(host, port);
+    socket->connectToHost("localhost",2323);
 }

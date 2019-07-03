@@ -7,6 +7,7 @@
 
 class QTextEdit;
 class QLineEdit;
+class QPushButton;
 
 class MyClient : public QWidget
 {
@@ -15,6 +16,8 @@ private:
     QTcpSocket* socket;
     QTextEdit* textInfo;
     QLineEdit* textInput;
+    QPushButton* sendButton;
+    QPushButton* connectButton;
     unsigned short nextBlockSize;
 
 public:
