@@ -7,16 +7,23 @@
 class QTextEdit;
 class QLineEdit;
 
-class myclient : public QWidget
+class MyClient : public QWidget
 {
 Q_OBJECT
 private:
     QTcpSocket* socket;
     QTextEdit* textEdit;
     QLineEdit* lineEdit;
+    qint16 nextBlockSize;
 
 public:
-    myclient();
+    MyClient(const QString& strHost, int nPort, QWidget* pwgt = nullptr);
+
+private slots:
+    void slotReadyRead();
+    void slotError();
+    void slotSendToServer();
+    void slotConnected();
 };
 
 #endif // MYCLIENT_H

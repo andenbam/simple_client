@@ -1,6 +1,6 @@
 #include "myclient.h"
 
-myclient::myclient()
+MyClient::MyClient(const QString &strHost, int nPort, QWidget *pwgt)
 {
 
 }
