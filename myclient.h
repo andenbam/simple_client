@@ -21,11 +21,10 @@ private:
     QPushButton* sendButton;
     QPushButton* connectButton;
     QPushButton* disconnectButton;
-    unsigned short nextBlockSize;
 
 public:
     MyClient();
-
+    void sendToServer(const QString&);
 private slots:
     void slotReadyRead();
     void slotError(QAbstractSocket::SocketError);

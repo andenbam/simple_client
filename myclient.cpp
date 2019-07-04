@@ -1,5 +1,6 @@
 #include "myclient.h"
 
+#include <QHostAddress>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -8,7 +9,7 @@
 #include <QTime>
 #include <QVBoxLayout>
 
-MyClient::MyClient() : QWidget(), nextBlockSize(0)
+MyClient::MyClient() : QWidget()
 {
     textInfo  = new QTextEdit();
     lineInput = new QLineEdit();
@@ -22,11 +23,11 @@ MyClient::MyClient() : QWidget(), nextBlockSize(0)
     lineHost  -> setPlaceholderText("host name");
     lineHost  -> setText("localhost");
     linePort  -> setPlaceholderText("#Port");
+    linePort  -> setText("5005");
     lineInput -> setPlaceholderText("$ message to server");
 
     lineInput        -> setDisabled(true);
     sendButton       -> setDisabled(true);
-    connectButton    -> setDisabled(true);
     disconnectButton -> setDisabled(true);
 
     connect(lineHost, &QLineEdit::textChanged,
@@ -63,6 +64,12 @@ MyClient::MyClient() : QWidget(), nextBlockSize(0)
     setLayout(layout);
 }
 
+void MyClient::sendToServer(const QString & message)
+{
+
+    socket -> write(message.toUtf8());
+}
+
 void MyClient::slotReadyRead() {
 
     textInfo -> append(QString("server-response:").append(QString::fromUtf8(socket->readAll())));
@@ -88,17 +95,19 @@ void MyClient::slotError(QAbstractSocket::SocketError err) {
 
 void MyClient::slotSendToServer() {
 
-    socket -> write(lineInput->text().append("\0").toUtf8());
+    sendToServer(lineInput->text());
     lineInput -> setText("");
 }
 
 void MyClient::slotConnected() {
 
+    connectButton    -> setDisabled(true);
     lineInput        -> setDisabled(false);
     sendButton       -> setDisabled(false);
     disconnectButton -> setDisabled(false);
 
-    textInfo -> append("\nconnection established\n");
+
+    textInfo -> append("connection established");
 }
 
 void MyClient::slotDisconnected()
@@ -111,10 +120,10 @@ void MyClient::slotDisconnected()
 
 void MyClient::slotSetConnection()
 {
-//  socket->connectToHost("46.0.199.93", 5000);
+    //socket->connectToHost("46.0.199.93", 5000);
     lineHost      -> setDisabled(true);
     linePort      -> setDisabled(true);
-    connectButton -> setDisabled(true);
+    //connectButton -> setDisabled(true);
 
     textInfo -> setText(QString("Connecting to ")
                      .append(lineHost->text().append(":")
