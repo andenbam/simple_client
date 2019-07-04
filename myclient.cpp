@@ -85,7 +85,7 @@ void MyClient::slotError(QAbstractSocket::SocketError err) {
 
 void MyClient::slotSendToServer() {
 
-    socket -> write(lineInput->text().append("\0").toLocal8Bit());
+    socket -> write(lineInput->text().append("\0").toUtf8());
     lineInput -> setText("");
 }
 
@@ -141,8 +141,10 @@ void MyClient::slotDropConnection() {
         disconnect(socket, static_cast<void (QTcpSocket::*)
                (QAbstractSocket::SocketError)>(&QAbstractSocket::error),
                      this, &MyClient::slotError);
+
+        socket -> close();
+        socket = nullptr;
     }
-    socket = nullptr;
 
     textInfo->append("\nConnection dropped");
 
