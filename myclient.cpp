@@ -41,6 +41,9 @@ MyClient::MyClient() : QWidget(), nextBlockSize(0)
     connect(sendButton, &QPushButton::pressed,
                   this, &MyClient::slotSendToServer);
 
+    connect(lineInput, &QLineEdit::returnPressed,
+                 this, &MyClient::slotSendToServer);
+
     QVBoxLayout* layout = new QVBoxLayout();
     QHBoxLayout* hPanel = new QHBoxLayout();
     QHBoxLayout* lPanel = new QHBoxLayout();
