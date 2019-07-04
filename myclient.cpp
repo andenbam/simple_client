@@ -44,33 +44,33 @@ MyClient::MyClient() : QWidget(), nextBlockSize(0)
 
     QVBoxLayout* layout = new QVBoxLayout();
     QHBoxLayout* hPanel = new QHBoxLayout();
+    QHBoxLayout* lPanel = new QHBoxLayout();
 
     hPanel -> addWidget(lineHost);
     hPanel -> addWidget(linePort);
     hPanel -> addWidget(connectButton);
     hPanel -> addWidget(disconnectButton);
 
+    lPanel -> addWidget(lineInput);
+    lPanel -> addWidget(sendButton);
+
     layout -> addLayout(hPanel);
     layout -> addWidget(textInfo);
-    layout -> addWidget(lineInput);
-    layout -> addWidget(sendButton);
+    layout -> addLayout(lPanel);
 
     setLayout(layout);
 }
 
 void MyClient::slotReadyRead()
 {
-    QDataStream dataStream(socket);
-    dataStream.setVersion(QDataStream::Qt_5_9);
-    char* str = new char[256];
-    socket->read(str, 256);
+    QString str = QString::fromUtf8(socket->read(256));
     textInfo->append(str);
 }
 
 void MyClient::slotError(QAbstractSocket::SocketError err)
 {
     connectButton -> setDisabled(false);
-    slotDropConnection();
+
     QString errorMessage = "Error: " +
             (err == QTcpSocket::HostNotFoundError ?
                  "Host was not found" :
@@ -81,11 +81,23 @@ void MyClient::slotError(QAbstractSocket::SocketError err)
              QString(socket->errorString()));
 
     textInfo->append(errorMessage);
+
+    delete socket;
+    socket = nullptr;
+}
+
+static QByteArray convertToByteArray(QString message){
+
+
+
+    return NULL;
 }
 
 void MyClient::slotSendToServer() {
 
-    socket -> write(lineInput->text().toStdString().c_str());
+    std::string str = lineInput->text().toStdString();
+    str.append("\0");
+    socket -> write(str.c_str());
     lineInput -> setText("");
 }
 
@@ -101,7 +113,7 @@ void MyClient::slotSetConnection()
 {
 //  socket->connectToHost("46.0.199.93", 5000);
 
-    textInfo->append(QString("Connecting to \"")
+    textInfo->setText(QString("Connecting to \"")
                      .append(lineHost->text().append(":").append(linePort->text())
                      .append("\"")));
 
