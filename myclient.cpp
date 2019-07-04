@@ -16,7 +16,10 @@ MyClient::MyClient() : QWidget(), nextBlockSize(0)
     textInfo = new QTextEdit();
     textInfo->setReadOnly(true);
     textInput = new QLineEdit();
-
+    textHost = new QLineEdit();
+    textPort = new QLineEdit();
+    textHost->setPlaceholderText("host name");
+    textPort->setPlaceholderText("Port");
     sendButton = new QPushButton("&Send");
     connectButton = new QPushButton("&Connect");
 
@@ -29,7 +32,11 @@ MyClient::MyClient() : QWidget(), nextBlockSize(0)
 
 
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(connectButton);
+    QHBoxLayout* horizontalLayout = new QHBoxLayout();
+    horizontalLayout->addWidget(textHost);
+    horizontalLayout->addWidget(textPort);
+    horizontalLayout->addWidget(connectButton);
+    layout->addLayout(horizontalLayout);
     layout->addWidget(textInfo);
     layout->addWidget(textInput);
     layout->addWidget(sendButton);
@@ -75,5 +82,5 @@ void MyClient::slotConnected()
 void MyClient::slotSetConnection()
 {
 //    socket->connectToHost("46.0.199.93", 5000);
-    socket->connectToHost("localhost", 5005);
+    socket->connectToHost(textHost->text(), textPort->text().toInt());
 }

@@ -16,6 +16,8 @@ private:
     QTcpSocket* socket;
     QTextEdit* textInfo;
     QLineEdit* textInput;
+    QLineEdit* textHost;
+    QLineEdit* textPort;
     QPushButton* sendButton;
     QPushButton* connectButton;
     unsigned short nextBlockSize;
