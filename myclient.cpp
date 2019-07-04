@@ -18,8 +18,11 @@ MyClient::MyClient() : QWidget(), nextBlockSize(0)
     textInput = new QLineEdit();
     textHost = new QLineEdit();
     textPort = new QLineEdit();
+
     textHost->setPlaceholderText("host name");
     textPort->setPlaceholderText("Port");
+    textHost->setText("localhost");
+
     sendButton = new QPushButton("&Send");
     connectButton = new QPushButton("&Connect");
 
