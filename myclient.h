@@ -20,6 +20,7 @@ private:
     QLineEdit* linePort;
     QPushButton* sendButton;
     QPushButton* connectButton;
+    QPushButton* disconnectButton;
     unsigned short nextBlockSize;
 
 public:
@@ -31,6 +32,7 @@ private slots:
     void slotSendToServer();
     void slotConnected();
     void slotSetConnection();
+    void slotDropConnection();
     void slotConnectionFieldsListener();
 };
 
