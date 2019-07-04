@@ -25,6 +25,8 @@ MyClient::MyClient() : QWidget(), nextBlockSize(0)
     sendButton = new QPushButton("&Send");
     connectButton = new QPushButton("&Connect");
 
+    connectButton->setDisabled(true);
+
     connect(lineHost, &QLineEdit::textChanged,
                 this, &MyClient::slotConnectionFieldsListener);
 
@@ -109,12 +111,6 @@ void MyClient::slotSetConnection()
 
 void MyClient::slotConnectionFieldsListener()
 {
-    if (lineHost->text().isNull() || linePort->text().isNull()){
-
-        connectButton->setDisabled(true);
-
-    } else {
-
-        connectButton->setDisabled(false);
-    };
+    connectButton->setDisabled(lineHost->text() == "" ||
+                               linePort->text() == "");
 }
