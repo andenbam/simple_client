@@ -40,27 +40,9 @@ void MyClient::slotReadyRead()
 {
     QDataStream dataStream(socket);
     dataStream.setVersion(QDataStream::Qt_5_9);
-
-    while(true){
-
-        if (!nextBlockSize){
-
-            if (socket->bytesAvailable() < sizeof(nextBlockSize))
-                return;
-
-            dataStream >> nextBlockSize;
-        }
-
-        if (socket->bytesAvailable() < nextBlockSize)
-            return;
-
-        QTime time;
-        QString str;
-        dataStream >> time >> str;
-
-        textInfo->append(time.toString() + " " + str);
-        nextBlockSize = 0;
-    }
+    char* str = new char[256];
+    socket->read(str, 256);
+    textInfo->append(str);
 }
 
 void MyClient::slotError(QAbstractSocket::SocketError err)
@@ -79,21 +61,10 @@ void MyClient::slotError(QAbstractSocket::SocketError err)
 
 void MyClient::slotSendToServer()
 {
-    QByteArray block;
 
-    QDataStream outputStream(&block, QIODevice::WriteOnly);
-    outputStream.setVersion(QDataStream::Qt_5_9);
-
-    outputStream << quint16(0)
-                 << QTime::currentTime()
-                 << textInput->text();
-
-    outputStream.device()->seek(0);
-    outputStream << quint16(
-                        block.size() - sizeof(quint16));
-
-    socket->write(block);
+    socket->write(textInput->text().toStdString().c_str());
     textInput->setText("");
+
 }
 
 void MyClient::slotConnected()
@@ -103,5 +74,6 @@ void MyClient::slotConnected()
 
 void MyClient::slotSetConnection()
 {
+//    socket->connectToHost("46.0.199.93", 5000);
     socket->connectToHost("localhost", 5005);
 }
