@@ -11,37 +11,54 @@
 MyClient::MyClient() : QWidget(), nextBlockSize(0)
 {
 
-    socket = new QTcpSocket(this);
+    socket            =           new         QTcpSocket(         this   );
+    textInfo                    =         new        QTextEdit(                );
+    textInfo          ->             setReadOnly                (true         );
+    lineInput = new QLineEdit();
+    lineHost = new QLineEdit();
+    linePort = new QLineEdit();
 
-    textInfo = new QTextEdit();
-    textInfo->setReadOnly(true);
-    textInput = new QLineEdit();
-    textHost = new QLineEdit();
-    textPort = new QLineEdit();
-
-    textHost->setPlaceholderText("host name");
-    textPort->setPlaceholderText("Port");
-    textHost->setText("localhost");
+    lineHost->setPlaceholderText("host name");
+    linePort->setPlaceholderText("Port");
+    lineHost->setText("localhost");
 
     sendButton = new QPushButton("&Send");
     connectButton = new QPushButton("&Connect");
 
-    connect(connectButton, &QPushButton::pressed, this, &MyClient::slotSetConnection);
-    connect(sendButton, &QPushButton::pressed, this, &MyClient::slotSendToServer);
-    connect(socket, &QTcpSocket::connected, this, &MyClient::slotConnected);
-    connect(socket, &QTcpSocket::readyRead, this, &MyClient::slotReadyRead);
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
-                    SLOT(slotError(QAbstractSocket::SocketError)));
+    connect(lineHost, &QLineEdit::textChanged,
+                this, &MyClient::slotConnectionFieldsListener);
 
+    connect(linePort, &QLineEdit::textChanged,
+                this, &MyClient::slotConnectionFieldsListener);
+
+    connect(connectButton, &QPushButton::pressed,
+                     this, &MyClient::slotSetConnection);
+
+    connect(sendButton, &QPushButton::pressed,
+                  this, &MyClient::slotSendToServer);
+
+    connect(socket, &QTcpSocket::connected,
+              this, &MyClient::slotConnected);
+    connect(socket, &QTcpSocket::readyRead,
+              this, &MyClient::slotReadyRead);
+
+    //НЕ СПРАШИВАЙ почему, я просто решил пользоваться исключительно новым синтаксисом
+
+    connect(socket, static_cast<void (QTcpSocket::*)
+               (QAbstractSocket::SocketError)>(&QAbstractSocket::error), this,
+                    &MyClient::slotError);
+
+    // вот тут есть ответ, почему так -
+    // https://stackoverflow.com/questions/35655512/compile-error-when-connecting-qtcpsocketerror-using-the-new-qt5-signal-slot
 
     QVBoxLayout* layout = new QVBoxLayout();
     QHBoxLayout* horizontalLayout = new QHBoxLayout();
-    horizontalLayout->addWidget(textHost);
-    horizontalLayout->addWidget(textPort);
+    horizontalLayout->addWidget(lineHost);
+    horizontalLayout->addWidget(linePort);
     horizontalLayout->addWidget(connectButton);
     layout->addLayout(horizontalLayout);
     layout->addWidget(textInfo);
-    layout->addWidget(textInput);
+    layout->addWidget(lineInput);
     layout->addWidget(sendButton);
     setLayout(layout);
 }
@@ -72,8 +89,8 @@ void MyClient::slotError(QAbstractSocket::SocketError err)
 void MyClient::slotSendToServer()
 {
 
-    socket->write(textInput->text().toStdString().c_str());
-    textInput->setText("");
+    socket->write(lineInput->text().toStdString().c_str());
+    lineInput->setText("");
 
 }
 
@@ -85,5 +102,19 @@ void MyClient::slotConnected()
 void MyClient::slotSetConnection()
 {
 //    socket->connectToHost("46.0.199.93", 5000);
-    socket->connectToHost(textHost->text(), textPort->text().toInt());
+    textInfo->append("Connecting to ");
+    textInfo->append(lineHost->text().append(":").append(linePort->text()));
+    socket->connectToHost(lineHost->text(), quint16(linePort->text().toInt()));
+}
+
+void MyClient::slotConnectionFieldsListener()
+{
+    if (lineHost->text().isNull() || linePort->text().isNull()){
+
+        connectButton->setDisabled(true);
+
+    } else {
+
+        connectButton->setDisabled(false);
+    };
 }

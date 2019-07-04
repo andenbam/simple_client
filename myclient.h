@@ -15,9 +15,9 @@ Q_OBJECT
 private:
     QTcpSocket* socket;
     QTextEdit* textInfo;
-    QLineEdit* textInput;
-    QLineEdit* textHost;
-    QLineEdit* textPort;
+    QLineEdit* lineInput;
+    QLineEdit* lineHost;
+    QLineEdit* linePort;
     QPushButton* sendButton;
     QPushButton* connectButton;
     unsigned short nextBlockSize;
@@ -31,6 +31,7 @@ private slots:
     void slotSendToServer();
     void slotConnected();
     void slotSetConnection();
+    void slotConnectionFieldsListener();
 };
 
 #endif // MYCLIENT_H
