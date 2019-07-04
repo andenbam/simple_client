@@ -2,7 +2,7 @@
 #define MYCLIENT_H
 #pragma once
 
-#include <QTcpSocket>
+#include <QAbstractSocket>
 #include <QWidget>
 
 class QTextEdit;
@@ -13,7 +13,7 @@ class MyClient : public QWidget
 {
 Q_OBJECT
 private:
-    QTcpSocket* socket;
+    QAbstractSocket* socket;
     QTextEdit* textInfo;
     QLineEdit* lineInput;
     QLineEdit* lineHost;
@@ -31,6 +31,7 @@ private slots:
     void slotError(QAbstractSocket::SocketError);
     void slotSendToServer();
     void slotConnected();
+    void slotDisconnected();
     void slotSetConnection();
     void slotDropConnection();
     void slotConnectionFieldsListener();

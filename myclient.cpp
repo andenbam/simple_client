@@ -62,7 +62,7 @@ MyClient::MyClient() : QWidget(), nextBlockSize(0)
 
 void MyClient::slotReadyRead() {
 
-    textInfo -> append(QString::fromUtf8(socket->readAll()));
+    textInfo -> append(QString("server-response:").append(QString::fromUtf8(socket->readAll())));
 }
 
 void MyClient::slotError(QAbstractSocket::SocketError err) {
@@ -70,11 +70,11 @@ void MyClient::slotError(QAbstractSocket::SocketError err) {
     connectButton -> setDisabled(false);
 
     QString errorMessage = "\nError: " +
-            (err == QTcpSocket::HostNotFoundError ?
+            (err == QAbstractSocket::HostNotFoundError ?
                  "Host was not found" :
-             err == QTcpSocket::RemoteHostClosedError ?
+             err == QAbstractSocket::RemoteHostClosedError ?
                   "Remote Host is closed" :
-             err == QTcpSocket::ConnectionRefusedError ?
+             err == QAbstractSocket::ConnectionRefusedError ?
                    "Connection was refused" :
              QString(socket->errorString()));
 
@@ -98,6 +98,14 @@ void MyClient::slotConnected() {
     textInfo -> append("\nconnection established\n");
 }
 
+void MyClient::slotDisconnected()
+{
+
+    textInfo -> append("\n[you've been disconnected from server]\n");
+
+    slotDropConnection();
+}
+
 void MyClient::slotSetConnection()
 {
 //  socket->connectToHost("46.0.199.93", 5000);
@@ -111,15 +119,15 @@ void MyClient::slotSetConnection()
 
     socket = new QTcpSocket(this);
 
-    connect(socket, &QTcpSocket::connected,
+    connect(socket, &QAbstractSocket::connected,
               this, &MyClient::slotConnected);
-    connect(socket, &QTcpSocket::disconnected,
-              this, &MyClient::slotDropConnection);
-    connect(socket, &QTcpSocket::readyRead,
+    connect(socket, &QAbstractSocket::disconnected,
+              this, &MyClient::slotDisconnected);
+    connect(socket, &QAbstractSocket::readyRead,
               this, &MyClient::slotReadyRead);
-    connect(socket, static_cast<void (QTcpSocket::*)
-               (QAbstractSocket::SocketError)>(&QAbstractSocket::error), this,
-                    &MyClient::slotError);
+    connect(socket, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>
+            (&QAbstractSocket::error),
+            this, &MyClient::slotError);
 
     socket->connectToHost(lineHost->text(), quint16(linePort->text().toInt()));
 }
@@ -132,15 +140,15 @@ void MyClient::slotDropConnection() {
 
     if (socket){
 
-        disconnect(socket, &QTcpSocket::connected,
+        disconnect(socket, &QAbstractSocket::connected,
                      this, &MyClient::slotConnected);
-        disconnect(socket, &QTcpSocket::disconnected,
-                     this, &MyClient::slotDropConnection);
-        disconnect(socket, &QTcpSocket::readyRead,
+        disconnect(socket, &QAbstractSocket::disconnected,
+                     this, &MyClient::slotDisconnected);
+        disconnect(socket, &QAbstractSocket::readyRead,
                      this, &MyClient::slotReadyRead);
-        disconnect(socket, static_cast<void (QTcpSocket::*)
-               (QAbstractSocket::SocketError)>(&QAbstractSocket::error),
-                     this, &MyClient::slotError);
+        disconnect(socket, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>
+                   (&QAbstractSocket::error),
+                   this, &MyClient::slotError);
 
         socket -> close();
         socket = nullptr;
