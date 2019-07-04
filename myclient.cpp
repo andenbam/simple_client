@@ -10,12 +10,12 @@
 
 MyClient::MyClient() : QWidget(), nextBlockSize(0)
 {
-    textInfo =  new QTextEdit();
+    textInfo  = new QTextEdit();
     lineInput = new QLineEdit();
-    lineHost =  new QLineEdit();
-    linePort =  new QLineEdit();
-    sendButton =       new QPushButton("&Send");
-    connectButton =    new QPushButton("&Connect");
+    lineHost  = new QLineEdit();
+    linePort  = new QLineEdit();
+    sendButton       = new QPushButton("&Send");
+    connectButton    = new QPushButton("&Connect");
     disconnectButton = new QPushButton("&Disconnect");
 
     textInfo  -> setReadOnly(true);
