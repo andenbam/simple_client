@@ -62,6 +62,12 @@ MyClient::MyClient() : QWidget()
     layout -> addLayout(lPanel);
 
     setLayout(layout);
+
+    //Теперь сокет создаётся раз за запуск программы
+    //
+    socket = new QTcpSocket(this);
+    //
+    //И не возникает смены дескриптора (uid по сути) при переподключении
 }
 
 void MyClient::sendToServer(const QString & message)
@@ -106,13 +112,11 @@ void MyClient::slotConnected() {
     sendButton       -> setDisabled(false);
     disconnectButton -> setDisabled(false);
 
-
     textInfo -> append("connection established");
 }
 
 void MyClient::slotDisconnected()
 {
-
     textInfo -> append("\n[you've been disconnected from server]\n");
 
     slotDropConnection();
@@ -123,13 +127,11 @@ void MyClient::slotSetConnection()
     //socket->connectToHost("46.0.199.93", 5000);
     lineHost      -> setDisabled(true);
     linePort      -> setDisabled(true);
-    //connectButton -> setDisabled(true);
+    connectButton -> setDisabled(true);
 
     textInfo -> setText(QString("Connecting to ")
                      .append(lineHost->text().append(":")
                      .append(linePort->text())));
-
-    socket = new QTcpSocket(this);
 
     connect(socket, &QAbstractSocket::connected,
               this, &MyClient::slotConnected);
@@ -152,6 +154,8 @@ void MyClient::slotDropConnection() {
 
     if (socket){
 
+        socket -> disconnectFromHost();
+
         disconnect(socket, &QAbstractSocket::connected,
                      this, &MyClient::slotConnected);
         disconnect(socket, &QAbstractSocket::disconnected,
@@ -162,8 +166,9 @@ void MyClient::slotDropConnection() {
                    (&QAbstractSocket::error),
                    this, &MyClient::slotError);
 
-        socket -> close();
-        socket = nullptr;
+        // ранее дескриптор обновлялся вместе с сокетом
+        //
+        //  socket = nullptr;
     }
 
     textInfo->append("\nConnection dropped");
