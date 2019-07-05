@@ -18,9 +18,9 @@ private:
     QLineEdit* lineInput;
     QLineEdit* lineHost;
     QLineEdit* linePort;
-    QPushButton* sendButton;
-    QPushButton* connectButton;
-    QPushButton* disconnectButton;
+    QPushButton* buttonSend;
+    QPushButton* buttonConnect;
+    QPushButton* buttonDisconnect;
 
 public:
     MyClient();

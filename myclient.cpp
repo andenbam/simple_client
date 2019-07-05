@@ -15,9 +15,9 @@ MyClient::MyClient() : QWidget()
     lineInput = new QLineEdit();
     lineHost  = new QLineEdit();
     linePort  = new QLineEdit();
-    sendButton       = new QPushButton("&Send");
-    connectButton    = new QPushButton("&Connect");
-    disconnectButton = new QPushButton("&Disconnect");
+    buttonSend       = new QPushButton("&Send");
+    buttonConnect    = new QPushButton("&Connect");
+    buttonDisconnect = new QPushButton("&Disconnect");
 
     textInfo  -> setReadOnly(true);
     lineHost  -> setPlaceholderText("host name");
@@ -27,19 +27,19 @@ MyClient::MyClient() : QWidget()
     lineInput -> setPlaceholderText("$ message to server");
 
     lineInput        -> setDisabled(true);
-    sendButton       -> setDisabled(true);
-    disconnectButton -> setDisabled(true);
+    buttonSend       -> setDisabled(true);
+    buttonDisconnect -> setDisabled(true);
 
     connect(lineHost, &QLineEdit::textChanged,
                 this, &MyClient::slotConnectionFieldsListener);
     connect(linePort, &QLineEdit::textChanged,
                 this, &MyClient::slotConnectionFieldsListener);
 
-    connect(connectButton, &QPushButton::pressed,
+    connect(buttonConnect, &QPushButton::pressed,
                      this, &MyClient::slotSetConnection);
-    connect(disconnectButton, &QPushButton::pressed,
+    connect(buttonDisconnect, &QPushButton::pressed,
                         this, &MyClient::slotDropConnection);
-    connect(sendButton, &QPushButton::pressed,
+    connect(buttonSend, &QPushButton::pressed,
                   this, &MyClient::slotSendToServer);
 
     connect(lineInput, &QLineEdit::returnPressed,
@@ -51,11 +51,11 @@ MyClient::MyClient() : QWidget()
 
     hPanel -> addWidget(lineHost);
     hPanel -> addWidget(linePort);
-    hPanel -> addWidget(connectButton);
-    hPanel -> addWidget(disconnectButton);
+    hPanel -> addWidget(buttonConnect);
+    hPanel -> addWidget(buttonDisconnect);
 
     lPanel -> addWidget(lineInput);
-    lPanel -> addWidget(sendButton);
+    lPanel -> addWidget(buttonSend);
 
     layout -> addLayout(hPanel);
     layout -> addWidget(textInfo);
@@ -63,15 +63,11 @@ MyClient::MyClient() : QWidget()
 
     setLayout(layout);
 
-    //Теперь сокет создаётся раз за запуск программы
-    //
+    //Теперь сокет создаётся раз за запуск программы, но это не избавляет от проблемы обновления :(
     socket = new QTcpSocket(this);
-    //
-    //И не возникает смены дескриптора (uid по сути) при переподключении
 }
 
-void MyClient::sendToServer(const QString & message)
-{
+void MyClient::sendToServer(const QString& message) {
 
     socket -> write(message.toUtf8());
 }
@@ -83,7 +79,7 @@ void MyClient::slotReadyRead() {
 
 void MyClient::slotError(QAbstractSocket::SocketError err) {
 
-    connectButton -> setDisabled(false);
+    buttonConnect -> setDisabled(false);
 
     QString errorMessage = "\nError: " +
             (err == QAbstractSocket::HostNotFoundError ?
@@ -107,19 +103,17 @@ void MyClient::slotSendToServer() {
 
 void MyClient::slotConnected() {
 
-    connectButton    -> setDisabled(true);
+    buttonConnect    -> setDisabled(true);
     lineInput        -> setDisabled(false);
-    sendButton       -> setDisabled(false);
-    disconnectButton -> setDisabled(false);
+    buttonSend       -> setDisabled(false);
+    buttonDisconnect -> setDisabled(false);
 
     textInfo -> append("connection established");
 }
 
 void MyClient::slotDisconnected()
 {
-    textInfo -> append("\n[you've been disconnected from server]\n");
-
-    slotDropConnection();
+    textInfo -> append("[you've been disconnected from server]");
 }
 
 void MyClient::slotSetConnection()
@@ -127,7 +121,7 @@ void MyClient::slotSetConnection()
     //socket->connectToHost("46.0.199.93", 5000);
     lineHost      -> setDisabled(true);
     linePort      -> setDisabled(true);
-    connectButton -> setDisabled(true);
+    buttonConnect -> setDisabled(true);
 
     textInfo -> setText(QString("Connecting to ")
                      .append(lineHost->text().append(":")
@@ -149,8 +143,8 @@ void MyClient::slotSetConnection()
 void MyClient::slotDropConnection() {
 
     lineInput        -> setDisabled(true);
-    sendButton       -> setDisabled(true);
-    disconnectButton -> setDisabled(true);
+    buttonSend       -> setDisabled(true);
+    buttonDisconnect -> setDisabled(true);
 
     if (socket){
 
@@ -165,21 +159,17 @@ void MyClient::slotDropConnection() {
         disconnect(socket, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>
                    (&QAbstractSocket::error),
                    this, &MyClient::slotError);
-
-        // ранее дескриптор обновлялся вместе с сокетом
-        //
-        //  socket = nullptr;
     }
 
-    textInfo->append("\nConnection dropped");
+    textInfo->append("Connection dropped");
 
     lineHost         -> setDisabled(false);
     linePort         -> setDisabled(false);
-    connectButton    -> setDisabled(false);
+    buttonConnect    -> setDisabled(false);
 }
 
 void MyClient::slotConnectionFieldsListener() {
 
-    connectButton->setDisabled(lineHost->text() == "" ||
+    buttonConnect->setDisabled(lineHost->text() == "" ||
                                linePort->text() == "");
 }
