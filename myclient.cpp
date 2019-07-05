@@ -9,8 +9,8 @@
 #include <QTime>
 #include <QVBoxLayout>
 
-MyClient::MyClient() : QWidget()
-{
+MyClient::MyClient() : QWidget() {
+
     textInfo  = new QTextEdit();
     lineInput = new QLineEdit();
     lineHost  = new QLineEdit();
@@ -111,13 +111,13 @@ void MyClient::slotConnected() {
     textInfo -> append("connection established");
 }
 
-void MyClient::slotDisconnected()
-{
+void MyClient::slotDisconnected() {
+
     textInfo -> append("[you've been disconnected from server]");
 }
 
-void MyClient::slotSetConnection()
-{
+void MyClient::slotSetConnection(){
+
     //socket->connectToHost("46.0.199.93", 5000);
     lineHost      -> setDisabled(true);
     linePort      -> setDisabled(true);
