@@ -74,7 +74,7 @@ void MyClient::sendToServer(const QString& message) {
 
 void MyClient::slotReadyRead() {
 
-    textInfo -> append(QString("server-response:").append(QString::fromUtf8(socket->readAll())));
+    textInfo -> append(QString("[SRV]:").append(QString::fromUtf8(socket->readAll())));
 }
 
 void MyClient::slotError(QAbstractSocket::SocketError err) {
