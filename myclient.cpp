@@ -76,14 +76,15 @@ void MyClient::show()
 {
     QWidget::show();
 
+    int fontSize = linePort->font().pointSize() > 12 ? 24 : 12;
     int totalHeight = mainLayout->geometry().height();
     int totalWidth  = mainLayout->geometry().width();
-    QFont font      = QFont(linePort->font().family(), 16);
+    QFont font      = QFont(linePort->font().family(), fontSize);
 
-    lineHost          -> setMinimumHeight(totalHeight / 8);
-    linePort          -> setMinimumHeight(totalHeight / 8);
-    buttonConnect     -> setMinimumHeight(totalHeight / 8);
-    buttonDisconnect  -> setMinimumHeight(totalHeight / 8);
+    lineHost          -> setMinimumHeight(totalHeight / 10);
+    linePort          -> setMinimumHeight(totalHeight / 10);
+    buttonConnect     -> setMinimumHeight(totalHeight / 10);
+    buttonDisconnect  -> setMinimumHeight(totalHeight / 10);
     lineInput         -> setMinimumHeight(totalHeight / 10);
     buttonSend        -> setMinimumHeight(totalHeight / 10);
     lineHost          -> setMinimumWidth(totalWidth / 4);
@@ -100,7 +101,7 @@ void MyClient::show()
 
 void MyClient::slotReadyRead() {
 
-    textInfo -> append(QString("[SRV]:").append(QString::fromUtf8(socket->readAll())));
+    textInfo -> append(QString("#").append(QString::fromUtf8(socket->readAll())));
 }
 
 void MyClient::slotError(QAbstractSocket::SocketError err) {
