@@ -45,7 +45,7 @@ MyClient::MyClient() : QWidget() {
     connect(lineInput, &QLineEdit::returnPressed,
                  this, &MyClient::slotSendToServer);
 
-    QVBoxLayout* layout = new QVBoxLayout();
+    mainLayout          = new QVBoxLayout();
     QHBoxLayout* hPanel = new QHBoxLayout();
     QHBoxLayout* lPanel = new QHBoxLayout();
 
@@ -57,11 +57,11 @@ MyClient::MyClient() : QWidget() {
     lPanel -> addWidget(lineInput);
     lPanel -> addWidget(buttonSend);
 
-    layout -> addLayout(hPanel);
-    layout -> addWidget(textInfo);
-    layout -> addLayout(lPanel);
+    mainLayout -> addLayout(hPanel);
+    mainLayout -> addWidget(textInfo);
+    mainLayout -> addLayout(lPanel);
 
-    setLayout(layout);
+    setLayout(mainLayout);
 
     //Теперь сокет создаётся раз за запуск программы, но это не избавляет от проблемы обновления :(
     socket = new QTcpSocket(this);
@@ -70,6 +70,32 @@ MyClient::MyClient() : QWidget() {
 void MyClient::sendToServer(const QString& message) {
 
     socket -> write(message.toUtf8());
+}
+
+void MyClient::show()
+{
+    QWidget::show();
+
+    int totalHeight = mainLayout->geometry().height();
+    int totalWidth  = mainLayout->geometry().width();
+    QFont font      = QFont(linePort->font().family(), 16);
+
+    lineHost          -> setMinimumHeight(totalHeight / 8);
+    linePort          -> setMinimumHeight(totalHeight / 8);
+    buttonConnect     -> setMinimumHeight(totalHeight / 8);
+    buttonDisconnect  -> setMinimumHeight(totalHeight / 8);
+    lineInput         -> setMinimumHeight(totalHeight / 10);
+    buttonSend        -> setMinimumHeight(totalHeight / 10);
+    lineHost          -> setMinimumWidth(totalWidth / 4);
+    lineHost          -> setMaximumWidth(totalWidth / 3);
+    linePort          -> setMaximumWidth(totalWidth / 4);
+    lineHost          -> setFont(font);
+    linePort          -> setFont(font);
+    lineInput         -> setFont(font);
+    buttonConnect     -> setFont(font);
+    buttonDisconnect  -> setFont(font);
+    buttonSend        -> setFont(font);
+    textInfo          -> setFont(font);
 }
 
 void MyClient::slotReadyRead() {
