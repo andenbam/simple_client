@@ -164,7 +164,7 @@ void MyClient::slotSetConnection(){
             (&QAbstractSocket::error),
             this, &MyClient::slotError);
 
-    socket->connectToHost(lineHost->text(), quint16(linePort->text().toInt()));
+    socket->connectToHost(lineHost->text(), quint16(linePort->text().toInt()), QIODevice::ReadWrite, QTcpSocket::IPv4Protocol);
 }
 
 void MyClient::slotDropConnection() {
