@@ -30,6 +30,7 @@ public:
     void sendToServer(const QString&);
     void show();
 private slots:
+    void gotExternalAddress(QString address);
     void slotReadyRead();
     void slotError(QAbstractSocket::SocketError);
     void slotSendToServer();

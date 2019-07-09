@@ -1,4 +1,5 @@
 #include "myclient.h"
+#include "testexternaladdress.h"
 
 #include <QHostAddress>
 #include <QLabel>
@@ -65,6 +66,9 @@ MyClient::MyClient() : QWidget() {
 
     //Теперь сокет создаётся раз за запуск программы, но это не избавляет от проблемы обновления :(
     socket = new QTcpSocket(this);
+
+    TestExternalAddress* tea = new TestExternalAddress();
+    connect(tea, &TestExternalAddress::gotAddress, this, &MyClient::gotExternalAddress);
 }
 
 void MyClient::sendToServer(const QString& message) {
@@ -99,6 +103,11 @@ void MyClient::show()
     textInfo          -> setFont(font);
 }
 
+void MyClient::gotExternalAddress(QString address)
+{
+    textInfo -> append(QString("External address: ").append(address));
+}
+
 void MyClient::slotReadyRead() {
 
     textInfo -> append(QString("#").append(QString::fromUtf8(socket->readAll())));
@@ -108,7 +117,7 @@ void MyClient::slotError(QAbstractSocket::SocketError err) {
 
     buttonConnect -> setDisabled(false);
 
-    QString errorMessage = "\nError: " +
+    QString errorMessage = "Error: " +
             (err == QAbstractSocket::HostNotFoundError ?
                  "Host was not found" :
              err == QAbstractSocket::RemoteHostClosedError ?

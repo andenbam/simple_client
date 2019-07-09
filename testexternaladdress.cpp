@@ -1,6 +1,3 @@
-#include "testexternaladdress.h"
-#include "qdebug.h"
-
 /*
     Этот класс был взят с официального форума forum.qt.io :
     https://forum.qt.io/topic/86025/qt-get-external-ip-address-using-qnetworkreply/2
@@ -10,6 +7,7 @@
     Решает проблему отыскания адреса для осуществления подключения
     к нашему серверу Simple Server.
 */
+#include "testexternaladdress.h"
 
 TestExternalAddress::TestExternalAddress()
 {
@@ -18,8 +16,8 @@ TestExternalAddress::TestExternalAddress()
     manager->get(QNetworkRequest(QUrl("https://api.ipify.org?format=json")));
 }
 
-void TestExternalAddress::gotReply(QNetworkReply* networkReply)
-{
+void TestExternalAddress::gotReply(QNetworkReply* networkReply) {
+
     networkReply->deleteLater();
-    qDebug() <<  QHostAddress(QJsonDocument::fromJson(networkReply->readAll()).object().value("ip").toString());
+    emit gotAddress(QHostAddress(QJsonDocument::fromJson(networkReply->readAll()).object().value("ip").toString()).toString());
 }
