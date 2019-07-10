@@ -15,7 +15,7 @@ class MyClient : public QWidget
 Q_OBJECT
 private:
     QAbstractSocket* socket;
-
+    QString externalAddress = "";
     QVBoxLayout* mainLayout;
     QTextEdit*   textInfo;
     QLineEdit*   lineInput;
@@ -29,6 +29,8 @@ public:
     MyClient();
     void sendToServer(const QString&);
     void show();
+private:
+    void clearConsole();
 private slots:
     void gotExternalAddress(QString address);
     void slotReadyRead();

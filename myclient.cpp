@@ -1,6 +1,7 @@
 #include "myclient.h"
 #include "testexternaladdress.h"
 
+#include <QGroupBox>
 #include <QHostAddress>
 #include <QLabel>
 #include <QLineEdit>
@@ -9,6 +10,7 @@
 #include <QTextEdit>
 #include <QTime>
 #include <QVBoxLayout>
+#include <qnetworkinterface.h>
 
 MyClient::MyClient() : QWidget() {
 
@@ -19,17 +21,6 @@ MyClient::MyClient() : QWidget() {
     buttonSend       = new QPushButton("&Send");
     buttonConnect    = new QPushButton("&Connect");
     buttonDisconnect = new QPushButton("&Disconnect");
-
-    textInfo  -> setReadOnly(true);
-    lineHost  -> setPlaceholderText("host name");
-    lineHost  -> setText("localhost");
-    linePort  -> setPlaceholderText("#Port");
-    linePort  -> setText("5005");
-    lineInput -> setPlaceholderText("$ message to server");
-
-    lineInput        -> setDisabled(true);
-    buttonSend       -> setDisabled(true);
-    buttonDisconnect -> setDisabled(true);
 
     connect(lineHost, &QLineEdit::textChanged,
                 this, &MyClient::slotConnectionFieldsListener);
@@ -46,29 +37,8 @@ MyClient::MyClient() : QWidget() {
     connect(lineInput, &QLineEdit::returnPressed,
                  this, &MyClient::slotSendToServer);
 
-    mainLayout          = new QVBoxLayout();
-    QHBoxLayout* hPanel = new QHBoxLayout();
-    QHBoxLayout* lPanel = new QHBoxLayout();
-
-    hPanel -> addWidget(lineHost);
-    hPanel -> addWidget(linePort);
-    hPanel -> addWidget(buttonConnect);
-    hPanel -> addWidget(buttonDisconnect);
-
-    lPanel -> addWidget(lineInput);
-    lPanel -> addWidget(buttonSend);
-
-    mainLayout -> addLayout(hPanel);
-    mainLayout -> addWidget(textInfo);
-    mainLayout -> addLayout(lPanel);
-
-    setLayout(mainLayout);
-
-    //Теперь сокет создаётся раз за запуск программы, но это не избавляет от проблемы обновления :(
     socket = new QTcpSocket(this);
 
-    TestExternalAddress* tea = new TestExternalAddress();
-    connect(tea, &TestExternalAddress::gotAddress, this, &MyClient::gotExternalAddress);
 }
 
 void MyClient::sendToServer(const QString& message) {
@@ -76,36 +46,71 @@ void MyClient::sendToServer(const QString& message) {
     socket -> write(message.toUtf8());
 }
 
-void MyClient::show()
-{
+void MyClient::show() {
+
+    connect(new TestExternalAddress(), &TestExternalAddress::gotAddress,
+                                 this, &MyClient::gotExternalAddress);
+
+    textInfo  -> setReadOnly(true);
+    lineHost  -> setPlaceholderText("#serverHost");
+    lineHost  -> setText("localhost");
+    linePort  -> setPlaceholderText("#Port");
+    linePort  -> setText("8080");
+    lineInput -> setPlaceholderText("#message to server");
+
+    lineInput        -> setDisabled(true);
+    buttonSend       -> setDisabled(true);
+    buttonDisconnect -> setDisabled(true);
+
+    mainLayout          = new QVBoxLayout();
+    QHBoxLayout* hPanel = new QHBoxLayout();
+    QHBoxLayout* lPanel = new QHBoxLayout();
+
+    QGroupBox* connectBox = new QGroupBox("Connection to Server");
+
+    hPanel -> addWidget(lineHost);
+    hPanel -> addWidget(linePort);
+    hPanel -> addWidget(buttonConnect);
+    hPanel -> addWidget(buttonDisconnect);
+    lPanel -> addWidget(lineInput);
+    lPanel -> addWidget(buttonSend);
+
+    QGroupBox* clientBox = new QGroupBox("Simple Client Messenger");
+    QVBoxLayout* vbox = new QVBoxLayout();
+
+    vbox->addWidget(textInfo);
+    vbox->addLayout(lPanel);
+    clientBox->setLayout(vbox);
+    connectBox->setLayout(hPanel);
+
+    mainLayout -> addWidget(connectBox);
+    mainLayout -> addWidget(clientBox);
+
+    setLayout(mainLayout);
+
     QWidget::show();
+}
 
-    int fontSize = linePort->font().pointSize() > 12 ? 24 : 12;
-    int totalHeight = mainLayout->geometry().height();
-    int totalWidth  = mainLayout->geometry().width();
-    QFont font      = QFont(linePort->font().family(), fontSize);
+void MyClient::clearConsole() {
 
-    lineHost          -> setMinimumHeight(totalHeight / 10);
-    linePort          -> setMinimumHeight(totalHeight / 10);
-    buttonConnect     -> setMinimumHeight(totalHeight / 10);
-    buttonDisconnect  -> setMinimumHeight(totalHeight / 10);
-    lineInput         -> setMinimumHeight(totalHeight / 10);
-    buttonSend        -> setMinimumHeight(totalHeight / 10);
-    lineHost          -> setMinimumWidth(totalWidth / 4);
-    lineHost          -> setMaximumWidth(totalWidth / 3);
-    linePort          -> setMaximumWidth(totalWidth / 4);
-    lineHost          -> setFont(font);
-    linePort          -> setFont(font);
-    lineInput         -> setFont(font);
-    buttonConnect     -> setFont(font);
-    buttonDisconnect  -> setFont(font);
-    buttonSend        -> setFont(font);
-    textInfo          -> setFont(font);
+    textInfo -> clear();
+
+    foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces()) {
+        QNetworkInterface::InterfaceFlags flags = netInterface.flags();
+        if( bool((flags & QNetworkInterface::IsRunning)) && !bool(flags & QNetworkInterface::IsLoopBack)){
+            foreach (const QNetworkAddressEntry &address, netInterface.addressEntries()) {
+                if(address.ip().protocol() == QAbstractSocket::IPv4Protocol)
+                    textInfo -> append(QString("Local address: ").append(address.ip().toString()));
+            }
+        }
+    }
+
+    textInfo -> append(QString("External address: ").append(externalAddress));
 }
 
 void MyClient::gotExternalAddress(QString address)
 {
-    textInfo -> append(QString("External address: ").append(address));
+    externalAddress = address;
 }
 
 void MyClient::slotReadyRead() {
@@ -154,12 +159,13 @@ void MyClient::slotDisconnected() {
 
 void MyClient::slotSetConnection(){
 
-    //socket->connectToHost("46.0.199.93", 5000);
     lineHost      -> setDisabled(true);
     linePort      -> setDisabled(true);
     buttonConnect -> setDisabled(true);
 
-    textInfo -> setText(QString("Connecting to ")
+    clearConsole();
+
+    textInfo -> append(QString("Connecting to ")
                      .append(lineHost->text().append(":")
                      .append(linePort->text())));
 

@@ -1,6 +1,5 @@
 QT += core gui widgets network
 CONFIG += app_bundle
-
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
