@@ -55,7 +55,7 @@ void MyClient::show() {
     lineHost  -> setPlaceholderText("#serverHost");
     lineHost  -> setText("localhost");
     linePort  -> setPlaceholderText("#Port");
-    linePort  -> setText("8080");
+    linePort  -> setText("5005");
     lineInput -> setPlaceholderText("#message to server");
 
     lineInput        -> setDisabled(true);
