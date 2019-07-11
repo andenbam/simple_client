@@ -17,5 +17,4 @@ HEADERS += \
     testexternaladdress.h
 
 DISTFILES += \
-    cert.pem \
-    sslserver.pem
+    server.crt

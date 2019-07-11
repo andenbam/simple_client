@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QTcpSocket>
 #include <QTextEdit>
+#include <QThread>
 #include <QTime>
 #include <QVBoxLayout>
 #include <qnetworkinterface.h>
@@ -37,8 +38,6 @@ MyClient::MyClient() : QWidget() {
     connect(lineInput, &QLineEdit::returnPressed,
                  this, &MyClient::slotSendToServer);
 
-    socket = new QSslSocket(this);
-    socket->addCaCertificates("cert.pem");
 }
 
 void MyClient::sendToServer(const QString& message) {
@@ -108,6 +107,11 @@ void MyClient::clearConsole() {
     textInfo -> append(QString("External address: ").append(externalAddress));
 }
 
+void MyClient::sslErrorOccured(const QList<QSslError> & error)
+{
+    socket -> ignoreSslErrors(error);
+}
+
 void MyClient::gotExternalAddress(QString address)
 {
     externalAddress = address;
@@ -139,15 +143,6 @@ void MyClient::slotError(QAbstractSocket::SocketError err) {
 void MyClient::slotSendToServer() {
 
     sendToServer(lineInput->text());
-
-//    if (socket->waitForEncrypted(1000)){
-
-
-//    }
-//    else {
-//        socket->disconnectFromHost();
-//        textInfo -> append("Error encryption");
-//    }
     lineInput -> setText("");
 }
 
@@ -158,8 +153,7 @@ void MyClient::slotConnected() {
     buttonSend       -> setDisabled(false);
     buttonDisconnect -> setDisabled(false);
 
-    //socket->startClientEncryption();
-    textInfo -> append("connection established");
+    textInfo -> append("Connection established");
 }
 
 void MyClient::slotDisconnected() {
@@ -169,6 +163,10 @@ void MyClient::slotDisconnected() {
 
 void MyClient::slotSetConnection(){
 
+    socket = new QSslSocket(this);
+
+    connect(socket, static_cast<void (QSslSocket::*)(const QList<QSslError> &)>(&QSslSocket::sslErrors), this, &MyClient::sslErrorOccured);
+
     lineHost      -> setDisabled(true);
     linePort      -> setDisabled(true);
     buttonConnect -> setDisabled(true);
@@ -176,8 +174,8 @@ void MyClient::slotSetConnection(){
     clearConsole();
 
     textInfo -> append(QString("Connecting to ")
-                     .append(lineHost->text().append(":")
-                     .append(linePort->text())));
+               .append(lineHost->text().append(":")
+               .append(linePort->text())));
 
     connect(socket, &QAbstractSocket::connected,
               this, &MyClient::slotConnected);
@@ -186,9 +184,10 @@ void MyClient::slotSetConnection(){
     connect(socket, &QAbstractSocket::readyRead,
               this, &MyClient::slotReadyRead);
     connect(socket, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>
-            (&QAbstractSocket::error),
-            this, &MyClient::slotError);
+           (&QAbstractSocket::error),
+           this, &MyClient::slotError);
 
+    socket->addCaCertificates("server.crt");
     socket->connectToHostEncrypted(lineHost->text(), quint16(linePort->text().toInt()));
 }
 
@@ -209,8 +208,8 @@ void MyClient::slotDropConnection() {
         disconnect(socket, &QAbstractSocket::readyRead,
                      this, &MyClient::slotReadyRead);
         disconnect(socket, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>
-                   (&QAbstractSocket::error),
-                   this, &MyClient::slotError);
+                  (&QAbstractSocket::error),
+                  this, &MyClient::slotError);
     }
 
     textInfo->append("Connection dropped");

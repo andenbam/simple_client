@@ -32,6 +32,7 @@ public:
     void show();
 private:
     void clearConsole();
+    void sslErrorOccured(const QList<QSslError> &errors);
 private slots:
     void gotExternalAddress(QString address);
     void slotReadyRead();
