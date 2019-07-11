@@ -15,3 +15,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     myclient.h \
     testexternaladdress.h
+
+DISTFILES += \
+    cert.pem \
+    sslserver.pem

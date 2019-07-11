@@ -137,13 +137,18 @@ void MyClient::slotError(QAbstractSocket::SocketError err) {
 }
 
 void MyClient::slotSendToServer() {
-    if (socket->waitForEncrypted(-1)){
-        sendToServer(lineInput->text());
-        lineInput -> setText("");
-    }
-    else {
-        qDebug() << "Error encryption";
-    }
+
+    sendToServer(lineInput->text());
+
+//    if (socket->waitForEncrypted(1000)){
+
+
+//    }
+//    else {
+//        socket->disconnectFromHost();
+//        textInfo -> append("Error encryption");
+//    }
+    lineInput -> setText("");
 }
 
 void MyClient::slotConnected() {
@@ -153,6 +158,7 @@ void MyClient::slotConnected() {
     buttonSend       -> setDisabled(false);
     buttonDisconnect -> setDisabled(false);
 
+    //socket->startClientEncryption();
     textInfo -> append("connection established");
 }
 
