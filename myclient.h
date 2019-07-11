@@ -1,7 +1,7 @@
 #ifndef MYCLIENT_H
 #define MYCLIENT_H
 #pragma once
-
+//test
 #include <QAbstractSocket>
 #include <QWidget>
 
