@@ -37,8 +37,8 @@ MyClient::MyClient() : QWidget() {
     connect(lineInput, &QLineEdit::returnPressed,
                  this, &MyClient::slotSendToServer);
 
-    socket = new QTcpSocket(this);
-
+    socket = new QSslSocket(this);
+    socket->addCaCertificates("cert.pem");
 }
 
 void MyClient::sendToServer(const QString& message) {
@@ -137,9 +137,13 @@ void MyClient::slotError(QAbstractSocket::SocketError err) {
 }
 
 void MyClient::slotSendToServer() {
-
-    sendToServer(lineInput->text());
-    lineInput -> setText("");
+    if (socket->waitForEncrypted(-1)){
+        sendToServer(lineInput->text());
+        lineInput -> setText("");
+    }
+    else {
+        qDebug() << "Error encryption";
+    }
 }
 
 void MyClient::slotConnected() {
@@ -179,7 +183,7 @@ void MyClient::slotSetConnection(){
             (&QAbstractSocket::error),
             this, &MyClient::slotError);
 
-    socket->connectToHost(lineHost->text(), quint16(linePort->text().toInt()), QIODevice::ReadWrite, QTcpSocket::IPv4Protocol);
+    socket->connectToHostEncrypted(lineHost->text(), quint16(linePort->text().toInt()));
 }
 
 void MyClient::slotDropConnection() {

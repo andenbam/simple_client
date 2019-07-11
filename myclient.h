@@ -3,6 +3,7 @@
 #pragma once
 //test
 #include <QAbstractSocket>
+#include <QSslSocket>
 #include <QWidget>
 
 class QTextEdit;
@@ -14,7 +15,7 @@ class MyClient : public QWidget
 {
 Q_OBJECT
 private:
-    QAbstractSocket* socket;
+    QSslSocket* socket;
     QString externalAddress = "";
     QVBoxLayout* mainLayout;
     QTextEdit*   textInfo;
