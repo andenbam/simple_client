@@ -187,7 +187,6 @@ void MyClient::slotSetConnection(){
            (&QAbstractSocket::error),
            this, &MyClient::slotError);
 
-    socket->addCaCertificates("server.crt");
     socket->connectToHostEncrypted(lineHost->text(), quint16(linePort->text().toInt()));
 }
 

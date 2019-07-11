@@ -16,5 +16,4 @@ HEADERS += \
     myclient.h \
     testexternaladdress.h
 
-DISTFILES += \
-    server.crt
+DISTFILES +=
