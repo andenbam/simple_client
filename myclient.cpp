@@ -38,11 +38,11 @@ MyClient::MyClient() : QWidget() {
                  this, &MyClient::slotSendToServer);
 
     socket = new QSslSocket(this);
-    socket->addCaCertificates("cert.pem");
+    socket->addCaCertificates("sslserver.pem");
+
 }
 
 void MyClient::sendToServer(const QString& message) {
-
     socket -> write(message.toUtf8());
 }
 
@@ -137,13 +137,8 @@ void MyClient::slotError(QAbstractSocket::SocketError err) {
 }
 
 void MyClient::slotSendToServer() {
-    if (socket->waitForEncrypted(-1)){
-        sendToServer(lineInput->text());
-        lineInput -> setText("");
-    }
-    else {
-        qDebug() << "Error encryption";
-    }
+    sendToServer(lineInput->text());
+    lineInput -> setText("");
 }
 
 void MyClient::slotConnected() {
