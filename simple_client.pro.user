@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.9.2, 2019-07-11T14:11:41. -->
+<!-- Written by QtCreator 4.9.2, 2019-07-11T19:12:03. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -62,8 +62,8 @@
  <data>
   <variable>ProjectExplorer.Project.Target.0</variable>
   <valuemap type="QVariantMap">
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Desktop Qt 5.12.4 GCC 64bit</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Desktop Qt 5.12.4 GCC 64bit</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Desktop Qt 64bit</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Desktop Qt 64bit</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">qt.qt5.5124.gcc_64_kit</value>
    <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
@@ -212,7 +212,7 @@
   <variable>ProjectExplorer.Project.Target.1</variable>
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Android for arm64-v8a (Clang Qt 5.12.4 for Android ARM64-v8a)</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Android for arm64-v8a (Clang Qt 5.12.4 for Android ARM64-v8a)</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Android arm64</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{8022fae7-5648-4447-9c4d-898f291384ca}</value>
    <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
@@ -387,7 +387,7 @@
   <variable>ProjectExplorer.Project.Target.2</variable>
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Android for x86 (Clang Qt 5.12.4 for Android x86)</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Android for x86 (Clang Qt 5.12.4 for Android x86)</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Android x86</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{69492229-e2a8-444d-b691-91d15d1162f5}</value>
    <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>

@@ -1,13 +1,14 @@
 #ifndef MYCLIENT_H
 #define MYCLIENT_H
 #pragma once
-//test
+
 #include <QAbstractSocket>
 #include <QSslSocket>
 #include <QWidget>
 
 class QTextEdit;
 class QLineEdit;
+class QCheckBox;
 class QPushButton;
 class QVBoxLayout;
 
@@ -17,7 +18,9 @@ Q_OBJECT
 private:
     QSslSocket* socket;
     QString externalAddress = "";
+
     QVBoxLayout* mainLayout;
+    QCheckBox*   checkErrors;
     QTextEdit*   textInfo;
     QLineEdit*   lineInput;
     QLineEdit*   lineHost;
@@ -32,17 +35,19 @@ public:
     void show();
 private:
     void clearConsole();
-    void sslErrorOccured(const QList<QSslError> &errors);
 private slots:
     void gotExternalAddress(QString address);
     void slotReadyRead();
+    void acceptSslErrors(const QList<QSslError> &errors);
+    void ignoreSslErrors(const QList<QSslError> &errors);
     void slotError(QAbstractSocket::SocketError);
     void slotSendToServer();
     void slotConnected();
     void slotDisconnected();
     void slotSetConnection();
     void slotDropConnection();
-    void slotConnectionFieldsListener();
+    void listenerConnectionFields();
+    void listenerCheckBox();
 };
 
 #endif // MYCLIENT_H
