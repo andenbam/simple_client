@@ -12,7 +12,10 @@
 TestExternalAddress::TestExternalAddress()
 {
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-    connect(manager,SIGNAL(finished(QNetworkReply*)),SLOT(gotReply(QNetworkReply*)));
+
+    connect(manager,&QNetworkAccessManager::finished,
+              this, &TestExternalAddress::gotReply);
+
     manager->get(QNetworkRequest(QUrl("https://api.ipify.org?format=json")));
 }
 

@@ -1,31 +1,37 @@
 #include "myclient.h"
 #include "testexternaladdress.h"
-
+#include <QCheckBox>
 #include <QGroupBox>
 #include <QHostAddress>
 #include <QLabel>
 #include <QLineEdit>
+#include <QNetworkConfigurationManager>
 #include <QPushButton>
 #include <QTcpSocket>
 #include <QTextEdit>
+#include <QThread>
 #include <QTime>
 #include <QVBoxLayout>
 #include <qnetworkinterface.h>
 
 MyClient::MyClient() : QWidget() {
 
-    textInfo  = new QTextEdit();
-    lineInput = new QLineEdit();
-    lineHost  = new QLineEdit();
-    linePort  = new QLineEdit();
+    checkErrors      = new QCheckBox();
+    textInfo         = new QTextEdit();
+    lineInput        = new QLineEdit();
+    lineHost         = new QLineEdit();
+    linePort         = new QLineEdit();
     buttonSend       = new QPushButton("&Send");
     buttonConnect    = new QPushButton("&Connect");
     buttonDisconnect = new QPushButton("&Disconnect");
 
+    connect(checkErrors, &QCheckBox::clicked,
+                   this, &MyClient::listenerCheckBox);
+
     connect(lineHost, &QLineEdit::textChanged,
-                this, &MyClient::slotConnectionFieldsListener);
+                this, &MyClient::listenerConnectionFields);
     connect(linePort, &QLineEdit::textChanged,
-                this, &MyClient::slotConnectionFieldsListener);
+                this, &MyClient::listenerConnectionFields);
 
     connect(buttonConnect, &QPushButton::pressed,
                      this, &MyClient::slotSetConnection);
@@ -37,7 +43,8 @@ MyClient::MyClient() : QWidget() {
     connect(lineInput, &QLineEdit::returnPressed,
                  this, &MyClient::slotSendToServer);
 
-    socket = new QTcpSocket(this);
+    QNetworkConfigurationManager confManag;
+    confManag.defaultConfiguration().setConnectTimeout(1000);
 
 }
 
@@ -48,9 +55,12 @@ void MyClient::sendToServer(const QString& message) {
 
 void MyClient::show() {
 
+    socket = new QSslSocket(this);
+
     connect(new TestExternalAddress(), &TestExternalAddress::gotAddress,
                                  this, &MyClient::gotExternalAddress);
 
+    checkErrors->setText("ignore SSL errors");
     textInfo  -> setReadOnly(true);
     lineHost  -> setPlaceholderText("#serverHost");
     lineHost  -> setText("localhost");
@@ -72,6 +82,7 @@ void MyClient::show() {
     hPanel -> addWidget(linePort);
     hPanel -> addWidget(buttonConnect);
     hPanel -> addWidget(buttonDisconnect);
+    hPanel -> addWidget(checkErrors);
     lPanel -> addWidget(lineInput);
     lPanel -> addWidget(buttonSend);
 
@@ -108,6 +119,19 @@ void MyClient::clearConsole() {
     textInfo -> append(QString("External address: ").append(externalAddress));
 }
 
+
+void MyClient::acceptSslErrors(const QList<QSslError> &errors)
+{
+    for (int i = 1; i < errors.size(); i++){
+        textInfo->append("Error: " +  errors.at(i).errorString());
+    }
+}
+
+void MyClient::ignoreSslErrors(const QList<QSslError> & error)
+{
+    socket -> ignoreSslErrors(error);
+}
+
 void MyClient::gotExternalAddress(QString address)
 {
     externalAddress = address;
@@ -142,32 +166,21 @@ void MyClient::slotSendToServer() {
     lineInput -> setText("");
 }
 
-void MyClient::slotConnected() {
-
-    buttonConnect    -> setDisabled(true);
-    lineInput        -> setDisabled(false);
-    buttonSend       -> setDisabled(false);
-    buttonDisconnect -> setDisabled(false);
-
-    textInfo -> append("connection established");
-}
-
-void MyClient::slotDisconnected() {
-
-    textInfo -> append("[you've been disconnected from server]");
-}
 
 void MyClient::slotSetConnection(){
+
+    socket -> open(QIODevice::OpenModeFlag::ReadWrite);
 
     lineHost      -> setDisabled(true);
     linePort      -> setDisabled(true);
     buttonConnect -> setDisabled(true);
+    checkErrors   -> setDisabled(true);
 
     clearConsole();
 
     textInfo -> append(QString("Connecting to ")
-                     .append(lineHost->text().append(":")
-                     .append(linePort->text())));
+               .append(lineHost->text().append(":")
+               .append(linePort->text())));
 
     connect(socket, &QAbstractSocket::connected,
               this, &MyClient::slotConnected);
@@ -176,10 +189,12 @@ void MyClient::slotSetConnection(){
     connect(socket, &QAbstractSocket::readyRead,
               this, &MyClient::slotReadyRead);
     connect(socket, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>
-            (&QAbstractSocket::error),
-            this, &MyClient::slotError);
+           (&QAbstractSocket::error),
+           this, &MyClient::slotError);
 
-    socket->connectToHost(lineHost->text(), quint16(linePort->text().toInt()), QIODevice::ReadWrite, QTcpSocket::IPv4Protocol);
+    socket->connectToHostEncrypted(lineHost->text(), quint16(linePort->text().toInt()));
+
+    buttonDisconnect -> setDisabled(false);
 }
 
 void MyClient::slotDropConnection() {
@@ -190,7 +205,9 @@ void MyClient::slotDropConnection() {
 
     if (socket){
 
+        socket -> abort();
         socket -> disconnectFromHost();
+        socket -> close();
 
         disconnect(socket, &QAbstractSocket::connected,
                      this, &MyClient::slotConnected);
@@ -199,8 +216,8 @@ void MyClient::slotDropConnection() {
         disconnect(socket, &QAbstractSocket::readyRead,
                      this, &MyClient::slotReadyRead);
         disconnect(socket, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>
-                   (&QAbstractSocket::error),
-                   this, &MyClient::slotError);
+                  (&QAbstractSocket::error),
+                  this, &MyClient::slotError);
     }
 
     textInfo->append("Connection dropped");
@@ -208,10 +225,45 @@ void MyClient::slotDropConnection() {
     lineHost         -> setDisabled(false);
     linePort         -> setDisabled(false);
     buttonConnect    -> setDisabled(false);
+    checkErrors      -> setDisabled(false);
 }
 
-void MyClient::slotConnectionFieldsListener() {
+void MyClient::slotConnected() {
+
+    buttonConnect    -> setDisabled(true);
+    checkErrors      -> setDisabled(true);
+    lineInput        -> setDisabled(false);
+    buttonSend       -> setDisabled(false);
+    buttonDisconnect -> setDisabled(false);
+
+    textInfo -> append("Connection established");
+}
+
+void MyClient::slotDisconnected() {
+
+    textInfo -> append("[you've been disconnected from server]");
+}
+
+void MyClient::listenerConnectionFields() {
 
     buttonConnect->setDisabled(lineHost->text() == "" ||
                                linePort->text() == "");
+}
+
+void MyClient::listenerCheckBox() {
+
+    if (checkErrors->isChecked()){
+        disconnect(socket, static_cast<void (QSslSocket::*)(const QList<QSslError> &)>(&QSslSocket::sslErrors),
+                   this, &MyClient::acceptSslErrors);
+        connect(socket, static_cast<void (QSslSocket::*)(const QList<QSslError> &)>(&QSslSocket::sslErrors),
+                  this, &MyClient::ignoreSslErrors);
+
+    } else {
+        disconnect(socket, static_cast<void (QSslSocket::*)(const QList<QSslError> &)>(&QSslSocket::sslErrors),
+                  this, &MyClient::ignoreSslErrors);
+        connect(socket, static_cast<void (QSslSocket::*)(const QList<QSslError> &)>(&QSslSocket::sslErrors),
+                   this, &MyClient::acceptSslErrors);
+        QList<QSslError> list;
+        socket->ignoreSslErrors(list);
+    }
 }
